@@ -26,6 +26,46 @@ You can run easyTravel by using [Docker Compose](https://docs.docker.com/compose
 docker-compose up
 ```
 NOTE: if you want to decrease memory usage, you can remove loadgen component from `docker-compose.yml`
+
+## Red Hat OpenShift instructions
+
+To deploy Easytravel in OpenShift you need to have:
+
+- Dynatrace operator installed on the cluster
+  - here's a [guide](https://docs.dynatrace.com/docs/setup-and-configuration/setup-on-k8s/installation/other/ocp-operator-hub) on how to install it
+
+- `oc` tool installed
+  - go to the main help icon on your OpenShift console (top right corner indicated by a ?) and select "Command Line Tools" to see how you install the `oc` tool 
+
+```bash
+# Login in to your OpenShift cluster and enter the password when prompted. . Replace <cluster admin user> with your admin user name.
+oc login <OpenSHift API URL> -u <cluster admin user>
+
+# first create the project
+oc new-project easytravel
+
+# Add policies for deploying the EasyTrade resources. Replace <cluster admin user> with your admin user name.
+oc adm policy add-role-to-user admin <cluster admin user> -n easytravel
+oc adm policy add-scc-to-user anyuid -z default -n easytravel 
+
+# then use the manifests to deploy the EasyTrade resources
+# wait until all the pods for the app are up and running
+oc -n easytravel apply -f ./kubernetes-manifests/mongodb.yml
+oc -n easytravel apply -f ./kubernetes-manifests/mongodb-contentcreator.yml
+oc -n easytravel apply -f ./kubernetes-manifests/backend.yml
+oc -n easytravel apply -f ./kubernetes-manifests/configuration-service.yml
+oc -n easytravel apply -f ./kubernetes-manifests/angular-frontend.yml
+oc -n easytravel apply -f ./kubernetes-manifests/nginx.yml
+oc -n easytravel apply -f ./kubernetes-manifests/loadgenerator.yml
+# to access the frontend EasyTrade UI
+# create a route in OpenShift for the frontendreverseproxy-easytrade service
+oc expose svc/angular-frontend-service --name=easytravel-frontend -n easytravel
+oc get route/easytravel-frontend
+
+# to delete the deployment
+oc delete easytravel
+```
+
 ## Configure easyTravel in Docker
 
 Aligning with principles of [12factor apps](http://12factor.net/config), one of them which requires strict separation of configuration from code, easyTravel can be configured at startup time via the following environment variables:
