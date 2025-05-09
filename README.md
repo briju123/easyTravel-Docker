@@ -44,7 +44,7 @@ oc login <OpenSHift API URL> -u <cluster admin user>
 # first create the project
 oc new-project easytravel
 
-# Add policies for deploying the EasyTrade resources. Replace <cluster admin user> with your admin user name.
+# Add policies for deploying the EasyTravel resources. Replace <cluster admin user> with your admin user name.
 oc adm policy add-role-to-user admin <cluster admin user> -n easytravel
 oc adm policy add-scc-to-user anyuid -z default -n easytravel 
 
@@ -66,7 +66,7 @@ oc get route/easytravel-frontend
 oc delete easytravel
 ```
 
-## Configure easyTravel in Docker
+## Configure EasyTravel in Docker
 
 Aligning with principles of [12factor apps](http://12factor.net/config), one of them which requires strict separation of configuration from code, easyTravel can be configured at startup time via the following environment variables:
 
